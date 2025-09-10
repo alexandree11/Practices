@@ -90,7 +90,7 @@ while True:
     if menu_choice == 5:
         list_all_contacts(contact_book)
     if menu_choice == 6:
-        break
+        break or exit()
     
 
 

@@ -1,6 +1,6 @@
 def add_item(item, price, stock):
     if item in inventory:
-        raise ValueError(f"Error: Item '{item}' already exists.")
+        print(f"Error: Item '{item}' already exists.")
     else:
         inventory[item] = {
             "price": price, 
@@ -10,28 +10,39 @@ def add_item(item, price, stock):
 
 def update_stock(item, quantity):
     if item not in inventory:
-        raise KeyError(f"Error: Item '{item}' not found.")
-    new_stock = inventory[item]["stock"] + quantity
-    if inventory[item]["stock"] < 0:
-        raise ValueError(f"Error: Insufficient stock for '{item}'.")
-    inventory[item]['stock'] += new_stock
-    print(f"Stock for '{item}' updated successfully.")
+        print(f"Error: Item '{item}' not found.")
+    else:
+        inventory[item]["stock"] += quantity
+        if inventory[item]["stock"] < 0:
+            print(f"Error: Insufficient stock for '{item}'.")
+            inventory[item]["stock"] -= quantity
+        else:
+            print(f"Stock for '{item}' updated successfully.")
             
 def check_availability(item):
     if item not in inventory:
-        raise KeyError("Item not found")
-    return inventory[item]['stock']
+        return ("Item not found")
+    else:
+        return inventory[item]['stock']
 
 def sales_report(sales):
     total = 0
-    for item, quantity in sales.items():
-        if item not in inventory:
-            raise KeyError(f"Error: Item '{item}' not found.")
-        if quantity > inventory[item]['stock']:
-            raise ValueError(f"Error: Insufficient stock for '{item}'")
-        inventory[item]['stock'] -= quantity
-        total += quantity * inventory[item]['price']    
+    for key in sales.keys():
+        if key not in inventory:
+            print(f"Error: Item '{key}' not found.")
+            continue
+        stock = sales.get(key)
+        if stock > inventory[key]['stock']:
+            print(f"Error: Insufficient stock for '{key}'")
+            continue
+        else:
+            inventory[key]['stock'] -= stock
+            total = total + (stock * inventory[key]['price'])
+    return(f"Total revenue: ${total:.2f}")
+                
         
+
+
 sales = {}
 inventory = {}
 add_item("Apple", 0.5, 50)

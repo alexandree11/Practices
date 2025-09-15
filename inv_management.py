@@ -39,9 +39,6 @@ def sales_report(sales):
             inventory[key]['stock'] -= stock
             total = total + (stock * inventory[key]['price'])
     return(f"Total revenue: ${total:.2f}")
-                
-        
-
 
 sales = {}
 inventory = {}

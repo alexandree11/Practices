@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 // MAX size of PCB queue
@@ -33,6 +34,7 @@ class PCBQueue {
             return count == MAX_PCB_SIZE;
         }
 
+        // func to add to the queue
         void add(const PCB& pcb) {
             if (isFull()) {
                 cout << "Queue is full, cannot add PCB" << endl;
@@ -43,6 +45,7 @@ class PCBQueue {
             count++; // increment to compare with isEmpty and isFull
         }
 
+        // func to remove from queue
         void remove() {
             if (isEmpty()) {
                 cout << "Queue is empty, cannot remove PCB" << endl;
@@ -58,29 +61,35 @@ class PCBQueue {
                 return;
             }
             cout << "PCB Queue: " << endl;
+            cout << left << setw(7) << "PID:" 
+                 << left << setw(12) << "| Status:"
+                 << left << setw(12) << "| Priority:" << endl;
             for (int i = 0; i < count; i++) {
                 int index = (first + i) % MAX_PCB_SIZE; // circular indexing
-                cout << "PID: " << queue[index].pid << ", "
-                     << ", status: " << queue[index].status 
-                     << ", priority: " << queue[index].priority << endl;
+                cout << left << setw(7) << queue[index].pid << "| "
+                     << left << setw(10) << queue[index].status << "| "
+                     << left << setw(10) << queue[index].priority << endl;
             }
         }
     };
 
 int main(){
+    //declaration
     PCBQueue pcbQueue;
-    ifstream file("data.txt");
+    ifstream infile("data.txt");
 
-    if(!file){
+    //if file not found == cout error
+    if(!infile){
         cout << "Error opening file" << endl;
         return 1;
     }
 
     PCB newPCB;
-    while(file >> newPCB.pid >> newPCB.status >> newPCB.priority){
+    //loop to read from a file and assign values to newPCB(pid, status, priority)
+    while(infile >> newPCB.pid >> newPCB.status >> newPCB.priority){
         pcbQueue.add(newPCB);
     }
     pcbQueue.printQueue();
-    file.close();
+    infile.close();
     return 0;
 }

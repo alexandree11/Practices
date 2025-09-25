@@ -10,18 +10,20 @@ struct PCB {
     int pid;
     char status[MAX_PCB_SIZE];
     int priority;
-}
+};
 
 // PCB Queue class
 class PCBQueue {
     private:
         PCB queue[MAX_PCB_SIZE]; // array to hold PCBs
         int first, last, count; // first and last index, count of PCBs in queue
+
     public:
-        PCBQueue():
+        PCBQueue(){
             first = 0;
             last = -1;
             count = 0;
+        }
 
         bool isEmpty() {
             return count == 0;
@@ -37,7 +39,7 @@ class PCBQueue {
                 return;
             }
             last = (last + 1) % MAX_PCB_SIZE; // circular list (if last becomes MAX then it goes to 0)
-            quque[last] = pcb; // add pcd to the queue at new last
+            queue[last] = pcb; // add pcd to the queue at new last
             count++; // increment to compare with isEmpty and isFull
         }
 
@@ -63,6 +65,7 @@ class PCBQueue {
                      << ", priority: " << queue[index].priority << endl;
             }
         }
+    };
 
 int main(){
     PCBQueue pcbQueue;

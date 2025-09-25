@@ -1,0 +1,83 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+// MAX size of PCB queue
+const int MAX_PCB_SIZE = 10;
+
+// PCB structure (PCD dictionary)
+struct PCB {
+    int pid;
+    char status[MAX_PCB_SIZE];
+    int priority;
+}
+
+// PCB Queue class
+class PCBQueue {
+    private:
+        PCB queue[MAX_PCB_SIZE]; // array to hold PCBs
+        int first, last, count; // first and last index, count of PCBs in queue
+    public:
+        PCBQueue():
+            first = 0;
+            last = -1;
+            count = 0;
+
+        bool isEmpty() {
+            return count == 0;
+        }
+
+        bool isFull() {
+            return count == MAX_PCB_SIZE;
+        }
+
+        void add(const PCB& pcb) {
+            if (isFull()) {
+                cout << "Queue is full, cannot add PCB" << endl;
+                return;
+            }
+            last = (last + 1) % MAX_PCB_SIZE; // circular list (if last becomes MAX then it goes to 0)
+            quque[last] = pcb; // add pcd to the queue at new last
+            count++; // increment to compare with isEmpty and isFull
+        }
+
+        void remove() {
+            if (isEmpty()) {
+                cout << "Queue is empty, cannot remove PCB" << endl;
+                return;
+            }
+            first = (first + 1) % MAX_PCB_SIZE; // circular list (if first becomes MAX then it goes to 0)
+            count--; // decrement to compare with isEmpty and isFull
+        }
+
+        void printQueue() {
+            if (isEmpty()) {
+                cout << "Queue is empty" << endl;
+                return;
+            }
+            cout << "PCB Queue: " << endl;
+            for (int i = 0; i < count; i++) {
+                int index = (first + i) % MAX_PCB_SIZE; // circular indexing
+                cout << "PID: " << queue[index].pid << ", "
+                     << ", status: " << queue[index].status 
+                     << ", priority: " << queue[index].priority << endl;
+            }
+        }
+
+int main(){
+    PCBQueue pcbQueue;
+    ifstream file("data.txt");
+
+    if(!file){
+        cout << "Error opening file" << endl;
+        return 1;
+    }
+
+    PCB newPCB;
+    while(file >> newPCB.pid >> newPCB.status >> newPCB.priority){
+        pcbQueue.add(newPCB);
+    }
+    pcbQueue.printQueue();
+    file.close();
+    return 0;
+}

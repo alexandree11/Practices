@@ -22,6 +22,12 @@ struct PCB{
     int pid;
     string status;
     int priority;
+    int burstTime;
+    int arrivalTime;
+    int completionTime;
+    int turnaroundTime;
+    int waitingTime;
+    int responseTime;
 };
 
 // PCB Queue class
@@ -86,12 +92,64 @@ class PCBQueue{
             }
             cout << endl;
         }
+
+        void clearQueue(){
+            count = 0;
+        }
+
+        // func to print the scheduler info for fifo
+        void printFifo(){
+            if (isEmpty()){
+                cout << "No ready processes in" << endl;
+                return;
+            }
+            
+            cout << left << setw(7) << "PID:" 
+                 << left << setw(8) << "| Burst"
+                 << left << setw(9) << "| Arrival" 
+                 << left << setw(12) << "| Completion"
+                 << left << setw(12) << "| Turnaround"
+                 << left << setw(9) << "| Waiting" 
+                 << left << setw(10) << "| Response" << endl;
+            for (int i = 0; i < count; i++){
+                int index = (first + i) % MAX_PCB_SIZE; // circular indexing
+                cout << left << setw(7) << queue[index].pid << "| "
+                     << left << setw(8) << queue[index].burstTime << "| "
+                     << left << setw(9) << queue[index].arrivalTime << "| "
+                     << left << setw(12) << queue[index].completionTime << "| " 
+                     << left << setw(12) << queue[index].turnaroundTime << "| "
+                     << left << setw(9) << queue[index].waitingTime << "| "
+                     << left << setw(10) << queue[index].responseTime << "| " << endl;
+                cout << "Average turnaround time: " << 
+            }
+            cout << endl;
+        }
+
+        // func to compute the timings for fifo
+        // completion = end = arrival + wait + burst
+        // turnaround = end - start
+        // wait time = end - start - burst
+        // response = arrival + wait
+        void computeTimesFifo(){
+            double totalTurnaround, totalWaiting, totalResponse, totalCompletion = 0.0;
+            for(int i = 0; i < count; i++){
+                int index = (first + i) % MAX_PCB_SIZE;
+                queue[index].completionTime = queue[index].arrivalTime + queue[index].waitingTime + queue[index].burstTime;
+                totalCompletion += queue[index].completionTime + queue[index].arrivalTime;
+                totalTurnaround += queue[index].turnaroundTime;
+                totalWaiting += queue[index].waitingTime;
+                totalResponse += queue[index].responseTime;
+            }
+            double avgTurnaround = totalTurnaround/count;
+            double avgWaiting = totalWaiting/count;
+            double avgRespone = totalResponse/count;
+        }
     };
 
 int main(){
     //declaration
-    PCBQueue pcbQueue;
-    ifstream infile("data.txt"); //file should be in the same folder as .cpp file or enter the full path
+    PCBQueue scheduledQueue;
+    ifstream infile("data_fifo.txt"); //file should be in the same folder as .cpp file or enter the full path
 
     //if file not found == cout error
     if(!infile){
@@ -103,36 +161,16 @@ int main(){
     //loop to read from a file and assign values to filePCB(pid, status, priority)
     //then add the PCB object to the queue
     //repeat while end of the file is not reached and print the queue at the end of the loop
-    while(infile >> filePCB.pid >> filePCB.status >> filePCB.priority){
-        pcbQueue.add(filePCB);
+    while(infile >> filePCB.pid >> filePCB.status >> filePCB.priority >> filePCB.burstTime >> filePCB.arrivalTime){
+        scheduledQueue.add(filePCB);
     }
     infile.close();
-    pcbQueue.printQueue();
+    
+    scheduledQueue.printFifo();
 
-    //removing first three added processes
-    pcbQueue.remove();
-    pcbQueue.remove();
-    pcbQueue.remove();
+    scheduledQueue.clearQueue();
 
-    //adding new processes to the queue
-    PCB newPCB = {12997, "READY", 6};
-    pcbQueue.add(newPCB);
-    newPCB = {12998, "RUNNING", 3};
-    pcbQueue.add(newPCB);
-    newPCB = {12999, "BLOCKED", 9};
-    pcbQueue.add(newPCB);
-
-    //this process should not be added since its already 10 processes in the queue
-    newPCB = {13000, "READY", 1};
-    pcbQueue.add(newPCB);
-
-    pcbQueue.printQueue();
-
-    //to clear the queue (this could be a function)
-    while(!pcbQueue.isEmpty()){
-        pcbQueue.remove();
-    }
-    pcbQueue.printQueue();
+    scheduledQueue.printFifo();
 
     return 0;
 }

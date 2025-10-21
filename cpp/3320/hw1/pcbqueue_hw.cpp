@@ -58,7 +58,7 @@ class PCBQueue{
                 cout << "Queue is full, cannot add process: " 
                      << "PID: " << pcb.pid << " | " 
                      << "Status: " << pcb.status << " | " 
-                     << "Priority: " << pcb.priority << endl << endl;
+                     << "Priority: " << pcb.priority << endl;
                 return;
             }
             last = (last + 1) % MAX_PCB_SIZE; // extend the tail in circular list (if last becomes MAX then it goes to 0)
@@ -69,7 +69,7 @@ class PCBQueue{
         // func to remove process from the queue
         void remove(){
             if (isEmpty()){
-                cout << "Queue is empty, cannot remove process" << endl << endl;
+                cout << "Queue is empty, cannot remove process" << endl;
                 return;
             }
             first = (first + 1) % MAX_PCB_SIZE; // circular list (if first becomes MAX then it goes to 0)
@@ -106,12 +106,12 @@ class PCBQueue{
             }
             
             cout << left << setw(7) << "PID:" 
-                 << left << setw(8) << "| Burst"
-                 << left << setw(9) << "| Arrival" 
-                 << left << setw(12) << "| Completion"
-                 << left << setw(12) << "| Turnaround"
-                 << left << setw(9) << "| Waiting" 
-                 << left << setw(10) << "| Response" << endl;
+                 << left << setw(10) << "| Burst"
+                 << left << setw(11) << "| Arrival" 
+                 << left << setw(14) << "| Completion"
+                 << left << setw(14) << "| Turnaround"
+                 << left << setw(11) << "| Waiting" 
+                 << left << setw(12) << "| Response" << endl;
             for (int i = 0; i < count; i++){
                 int index = (first + i) % MAX_PCB_SIZE; // circular indexing
                 cout << left << setw(7) << queue[index].pid << "| "
@@ -120,20 +120,19 @@ class PCBQueue{
                      << left << setw(12) << queue[index].completionTime << "| " 
                      << left << setw(12) << queue[index].turnaroundTime << "| "
                      << left << setw(9) << queue[index].waitingTime << "| "
-                     << left << setw(10) << queue[index].responseTime << "| " << endl;
+                     << left << setw(10) << queue[index].responseTime << endl;
             }
 
-            cout << "Average turnaround time: " << avgTurnaround;
-            cout << "Average waiting time: " << avgWaiting;
-            cout << "Average response time: " << avgResponse;
-            cout << endl;
+            cout << "Average turnaround time: " << avgTurnaround << endl;
+            cout << "Average waiting time: " << avgWaiting << endl;
+            cout << "Average response time: " << avgResponse << endl;
         }
 
         // func to compute the timings for fifo
         // completion = end = arrival + wait + burst
         // turnaround = end - arrival
         // wait time = end - arrival - burst
-        // response = end - arrival
+        // response = wait + arrival
         void computeTimesFifo(){
             double totalTurnaround, totalWaiting, totalResponse, totalCompletion = 0.0;
             int currentTime = 0;
@@ -142,11 +141,14 @@ class PCBQueue{
                 if(currentTime < queue[index].arrivalTime)
                     currentTime = queue[index].arrivalTime;
 
-                queue[index].completionTime = queue[index].arrivalTime + queue[index].burstTime;
+                queue[index].completionTime = currentTime + queue[index].burstTime;
                 queue[index].turnaroundTime = queue[index].completionTime - queue[index].arrivalTime;
-                queue[index].waitingTime = queue[index].turnaroundTime - queue[index].burstTime;
-                queue[index].responseTime = queue[index].arrivalTime - queue[index].arrivalTime;
+                queue[index].waitingTime = queue[index].completionTime - queue[index].burstTime - queue[index].arrivalTime;
+                queue[index].responseTime = queue[index].waitingTime + queue[index].arrivalTime;
                 currentTime = queue[index].completionTime;
+                totalTurnaround += queue[index].turnaroundTime;
+                totalWaiting += queue[index].waitingTime;
+                totalResponse += queue[index].responseTime;
             }
             avgTurnaround = totalTurnaround/count;
             avgWaiting = totalWaiting/count;
@@ -173,12 +175,12 @@ int main(){
         scheduledQueue.add(filePCB);
     }
     infile.close();
-    
+    scheduledQueue.computeTimesFifo();
     scheduledQueue.printFifo();
 
-    scheduledQueue.clearQueue();
+    // scheduledQueue.clearQueue();
 
-    scheduledQueue.printFifo();
+    // scheduledQueue.printFifo();
 
     return 0;
 }

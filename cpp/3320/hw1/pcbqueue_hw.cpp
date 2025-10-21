@@ -35,6 +35,7 @@ class PCBQueue{
     private:
         PCB queue[MAX_PCB_SIZE]; // array to hold MAX_PCB_SIZE amount of processes in queue
         int first, last, count; // first and last index, count of processes in queue
+        double avgTurnaround, avgWaiting, avgResponse;
 
     public:
         PCBQueue(){
@@ -120,29 +121,36 @@ class PCBQueue{
                      << left << setw(12) << queue[index].turnaroundTime << "| "
                      << left << setw(9) << queue[index].waitingTime << "| "
                      << left << setw(10) << queue[index].responseTime << "| " << endl;
-                cout << "Average turnaround time: " << 
             }
+
+            cout << "Average turnaround time: " << avgTurnaround;
+            cout << "Average waiting time: " << avgWaiting;
+            cout << "Average response time: " << avgResponse;
             cout << endl;
         }
 
         // func to compute the timings for fifo
         // completion = end = arrival + wait + burst
-        // turnaround = end - start
-        // wait time = end - start - burst
-        // response = arrival + wait
+        // turnaround = end - arrival
+        // wait time = end - arrival - burst
+        // response = end - arrival
         void computeTimesFifo(){
             double totalTurnaround, totalWaiting, totalResponse, totalCompletion = 0.0;
+            int currentTime = 0;
             for(int i = 0; i < count; i++){
                 int index = (first + i) % MAX_PCB_SIZE;
-                queue[index].completionTime = queue[index].arrivalTime + queue[index].waitingTime + queue[index].burstTime;
-                totalCompletion += queue[index].completionTime + queue[index].arrivalTime;
-                totalTurnaround += queue[index].turnaroundTime;
-                totalWaiting += queue[index].waitingTime;
-                totalResponse += queue[index].responseTime;
+                if(currentTime < queue[index].arrivalTime)
+                    currentTime = queue[index].arrivalTime;
+
+                queue[index].completionTime = queue[index].arrivalTime + queue[index].burstTime;
+                queue[index].turnaroundTime = queue[index].completionTime - queue[index].arrivalTime;
+                queue[index].waitingTime = queue[index].turnaroundTime - queue[index].burstTime;
+                queue[index].responseTime = queue[index].arrivalTime - queue[index].arrivalTime;
+                currentTime = queue[index].completionTime;
             }
-            double avgTurnaround = totalTurnaround/count;
-            double avgWaiting = totalWaiting/count;
-            double avgRespone = totalResponse/count;
+            avgTurnaround = totalTurnaround/count;
+            avgWaiting = totalWaiting/count;
+            avgResponse = totalResponse/count;
         }
     };
 

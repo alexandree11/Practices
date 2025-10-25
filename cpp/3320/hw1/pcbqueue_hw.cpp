@@ -104,8 +104,13 @@ class PCBQueue{
                 cout << "No ready processes in" << endl;
                 return;
             }
-            
-            cout << left << setw(7) << "PID:" 
+
+            ofstream outfile("table_fifo.txt"); // create a table_fifo.txt file to save the results
+            if(!outfile){
+                cout << "Something went wrong with the file" << endl;
+            }
+
+            outfile << left << setw(7) << "PID:" 
                  << left << setw(10) << "| Burst"
                  << left << setw(11) << "| Arrival" 
                  << left << setw(14) << "| Completion"
@@ -114,7 +119,7 @@ class PCBQueue{
                  << left << setw(12) << "| Response" << endl;
             for (int i = 0; i < count; i++){
                 int index = (first + i) % MAX_PCB_SIZE; // circular indexing
-                cout << left << setw(7) << queue[index].pid << "| "
+                outfile << left << setw(7) << queue[index].pid << "| "
                      << left << setw(8) << queue[index].burstTime << "| "
                      << left << setw(9) << queue[index].arrivalTime << "| "
                      << left << setw(12) << queue[index].completionTime << "| " 
@@ -123,9 +128,11 @@ class PCBQueue{
                      << left << setw(10) << queue[index].responseTime << endl;
             }
 
-            cout << "Average turnaround time: " << avgTurnaround << endl;
-            cout << "Average waiting time: " << avgWaiting << endl;
-            cout << "Average response time: " << avgResponse << endl;
+            outfile << "Average turnaround time: " << avgTurnaround << endl;
+            outfile << "Average waiting time: " << avgWaiting << endl;
+            outfile << "Average response time: " << avgResponse << endl;
+
+            outfile.close();
         }
 
         // func to compute the timings for fifo
@@ -175,9 +182,10 @@ int main(){
         scheduledQueue.add(filePCB);
     }
     infile.close();
+
     scheduledQueue.computeTimesFifo();
     scheduledQueue.printFifo();
-
+    
     // scheduledQueue.clearQueue();
 
     // scheduledQueue.printFifo();

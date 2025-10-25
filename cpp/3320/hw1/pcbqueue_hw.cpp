@@ -35,6 +35,7 @@ class PCBQueue{
     private:
         PCB queue[MAX_PCB_SIZE]; // array to hold MAX_PCB_SIZE amount of processes in queue
         int first, last, count; // first and last index, count of processes in queue
+        double totalTurnaround, totalWaiting, totalResponse = 0.0;
         double avgTurnaround, avgWaiting, avgResponse;
 
     public:
@@ -141,7 +142,6 @@ class PCBQueue{
         // wait time = end - arrival - burst
         // response = wait + arrival
         void computeTimesFifo(){
-            double totalTurnaround, totalWaiting, totalResponse, totalCompletion = 0.0;
             int currentTime = 0;
             for(int i = 0; i < count; i++){
                 int index = (first + i) % MAX_PCB_SIZE;
@@ -160,6 +160,16 @@ class PCBQueue{
             avgTurnaround = totalTurnaround/count;
             avgWaiting = totalWaiting/count;
             avgResponse = totalResponse/count;
+        }
+
+        void computeTimesRR(){
+            int timeSlice = 2;
+            int currentTime = 0;
+            for(int i = 0; i < count; i++){
+                int index = (first + i) % MAX_PCB_SIZE;
+            
+            
+            }
         }
     };
 
@@ -185,7 +195,7 @@ int main(){
 
     scheduledQueue.computeTimesFifo();
     scheduledQueue.printFifo();
-    
+
     // scheduledQueue.clearQueue();
 
     // scheduledQueue.printFifo();

@@ -100,16 +100,15 @@ class PCBQueue{
         }
 
         // func to print the scheduler info for fifo
-        void printFifo(){
+        void printResults(){
             if (isEmpty()){
                 cout << "No ready processes in" << endl;
                 return;
             }
 
-            ofstream outfile("table_fifo.txt"); // create a table_fifo.txt file to save the results
-            if(!outfile){
+            ofstream outfile("table_rr.txt"); // create a table_fifo.txt file to save the results
+            if(!outfile)
                 cout << "Something went wrong with the file" << endl;
-            }
 
             outfile << left << setw(7) << "PID:" 
                  << left << setw(10) << "| Burst"
@@ -165,18 +164,40 @@ class PCBQueue{
         void computeTimesRR(){
             int timeSlice = 2;
             int currentTime = 0;
-            for(int i = 0; i < count; i++){
-                int index = (first + i) % MAX_PCB_SIZE;
-            
-            
+            bool completed = false;
+            while(!completed){
+                for(int i = 0; i < count; i++){
+                    if(count == 0)
+                        completed = true;
+
+                    int index = (first + i) % MAX_PCB_SIZE;
+                    
+                    if(queue[index].burstTime > timeSlice){
+                        currentTime += timeSlice;
+                        queue[index].burstTime -= timeSlice;
+                    }
+                    else{
+                        currentTime += queue[index].burstTime;
+                        queue[index].burstTime = 0;
+                        queue[index].completionTime = currentTime;
+                        count--;
+                    }
+
+                    totalTurnaround += queue[index].turnaroundTime;
+                    totalWaiting += queue[index].waitingTime;
+                    totalResponse += queue[index].responseTime;
+                }
             }
+            avgTurnaround = totalTurnaround/count;
+            avgWaiting = totalWaiting/count;
+            avgResponse = totalResponse/count;
         }
     };
 
 int main(){
     //declaration
     PCBQueue scheduledQueue;
-    ifstream infile("data_fifo.txt"); //file should be in the same folder as .cpp file or enter the full path
+    ifstream infile("data_rr.txt"); //file should be in the same folder as .cpp file or enter the full path
 
     //if file not found == cout error
     if(!infile){
@@ -193,8 +214,9 @@ int main(){
     }
     infile.close();
 
-    scheduledQueue.computeTimesFifo();
-    scheduledQueue.printFifo();
+    // scheduledQueue.computeTimesFifo();
+    scheduledQueue.computeTimesRR();
+    scheduledQueue.printResults();
 
     // scheduledQueue.clearQueue();
 

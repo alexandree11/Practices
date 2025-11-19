@@ -28,6 +28,7 @@ struct PCB{
     int turnaroundTime;
     int waitingTime;
     int responseTime;
+    int remainingBurst;
 };
 
 // PCB Queue class
@@ -100,7 +101,7 @@ class PCBQueue{
         }
 
         // func to print the scheduler info for fifo
-        void printResults(){
+        void saveResults(){
             if (isEmpty()){
                 cout << "No ready processes in" << endl;
                 return;
@@ -161,38 +162,67 @@ class PCBQueue{
             avgResponse = totalResponse/count;
         }
 
-        void computeTimesRR(){
+        void computeTimesRR() {
             int timeSlice = 2;
             int currentTime = 0;
-            bool completed = false;
-            while(!completed){
-                for(int i = 0; i < count; i++){
-                    if(count == 0)
-                        completed = true;
+            int countCompleted = 0;
 
-                    int index = (first + i) % MAX_PCB_SIZE;
-                    
-                    if(queue[index].burstTime > timeSlice){
-                        currentTime += timeSlice;
-                        queue[index].burstTime -= timeSlice;
-                    }
-                    else{
-                        currentTime += queue[index].burstTime;
-                        queue[index].burstTime = 0;
-                        queue[index].completionTime = currentTime;
-                        count--;
-                    }
-
-                    totalTurnaround += queue[index].turnaroundTime;
-                    totalWaiting += queue[index].waitingTime;
-                    totalResponse += queue[index].responseTime;
-                }
+            for(int i = 0; i < count; i++) {
+                int index = (first + i) % MAX_PCB_SIZE;
+                queue[index].remainingBurst = queue[index].burstTime;
+                queue[index].responseTime = -999;
+                queue[index].status = "READY";
             }
-            avgTurnaround = totalTurnaround/count;
-            avgWaiting = totalWaiting/count;
-            avgResponse = totalResponse/count;
-        }
-    };
+
+            while(countCompleted < count) {
+                for(int i = 0; i < count; i++){
+                    int index = (first + i) % MAX_PCB_SIZE;
+
+                    //if process completed then skip to the next process
+                    if(queue[index].status == "COMPLETED")
+                        continue;
+
+                    //if process has not arrived yet skip to the next process
+                    if(queue[index].arrivalTime > currentTime)
+                        continue;
+
+                    //to mark the response time
+                    if(queue[index].arrivalTime <= currentTime && queue[index].responseTime == -999)
+                        queue[index].responseTime = currentTime - queue[index].arrivalTime;
+
+                    //decrement remainingBurst by the timeSlice
+                    if(queue[index].remainingBurst > timeSlice) {
+                        queue[index].remainingBurst -= timeSlice;
+                        currentTime += timeSlice;
+                    }
+                    //if remainingBurst < timeSlice then decrease by the time left, mark as completed,
+                    //compute completion, turnaround and waiting times and increment the total for them
+                    //increment the countCompleted to track if all the processes from the Q are finished
+                    else{
+                        currentTime += queue[index].remainingBurst;
+                        queue[index].remainingBurst = 0;
+
+                        queue[index].completionTime = currentTime;
+                        queue[index].turnaroundTime = queue[index].completionTime - queue[index].arrivalTime;
+                        queue[index].waitingTime = queue[index].turnaroundTime - queue[index].burstTime;
+
+                        queue[index].status = "COMPLETED";
+
+                        totalTurnaround += queue[index].turnaroundTime;
+                        totalWaiting += queue[index].waitingTime;
+                        totalResponse += queue[index].responseTime;
+
+                        countCompleted++;
+                        }
+                    }
+                }
+                avgTurnaround = totalTurnaround/count;
+                avgWaiting = totalWaiting/count;
+                avgResponse = totalResponse/count;
+            }
+        };
+
+
 
 int main(){
     //declaration
@@ -216,7 +246,7 @@ int main(){
 
     // scheduledQueue.computeTimesFifo();
     scheduledQueue.computeTimesRR();
-    scheduledQueue.printResults();
+    scheduledQueue.saveResults();
 
     // scheduledQueue.clearQueue();
 

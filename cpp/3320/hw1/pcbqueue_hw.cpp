@@ -29,6 +29,8 @@ struct PCB{
     int waitingTime;
     int responseTime;
     int remainingBurst;
+    int base;
+    int limit;
 };
 
 // PCB Queue class
@@ -52,6 +54,10 @@ class PCBQueue{
 
         bool isFull(){
             return count == MAX_PCB_SIZE;
+        }
+
+        int getCount(){
+            return count;
         }
 
         // func to add process to the queue
@@ -98,6 +104,8 @@ class PCBQueue{
 
         void clearQueue(){
             count = 0;
+            first = 0;
+            last = -1;
         }
 
         // func to print the scheduler info for fifo
@@ -107,7 +115,8 @@ class PCBQueue{
                 return;
             }
 
-            ofstream outfile("table_rr.txt"); // create a table_fifo.txt file to save the results
+            ofstream outfile("table_sjf.txt"); // create a table_fifo.txt file to save the results
+
             if(!outfile)
                 cout << "Something went wrong with the file" << endl;
 
@@ -136,6 +145,9 @@ class PCBQueue{
             outfile.close();
         }
 
+        void saveResultsFIFO() { saveResultsTo("table_fifo.txt"); }
+        void saveResultsRR()   { saveResultsTo("table_rr.txt"); }
+        void saveResultsSJF()  { saveResultsTo("table_sjf.txt"); }
         // func to compute the timings for fifo
         // completion = end = arrival + wait + burst
         // turnaround = end - arrival
@@ -167,43 +179,42 @@ class PCBQueue{
             int currentTime = 0;
             int countCompleted = 0;
 
+            // reset totals
+            totalTurnaround = totalWaiting = totalResponse = 0;
+
+            // initialize processes
             for(int i = 0; i < count; i++) {
                 int index = (first + i) % MAX_PCB_SIZE;
                 queue[index].remainingBurst = queue[index].burstTime;
-                queue[index].responseTime = -999;
+                queue[index].responseTime = -1;
                 queue[index].status = "READY";
             }
 
             while(countCompleted < count) {
-                for(int i = 0; i < count; i++){
+
+                for(int i = 0; i < count; i++) {
                     int index = (first + i) % MAX_PCB_SIZE;
 
-                    //if process completed then skip to the next process
                     if(queue[index].status == "COMPLETED")
                         continue;
 
-                    //if process has not arrived yet skip to the next process
                     if(queue[index].arrivalTime > currentTime)
                         continue;
 
-                    //to mark the response time
-                    if(queue[index].arrivalTime <= currentTime && queue[index].responseTime == -999)
+                    // response time on FIRST service
+                    if(queue[index].responseTime == -1)
                         queue[index].responseTime = currentTime - queue[index].arrivalTime;
 
-                    //decrement remainingBurst by the timeSlice
                     if(queue[index].remainingBurst > timeSlice) {
                         queue[index].remainingBurst -= timeSlice;
                         currentTime += timeSlice;
                     }
-                    //if remainingBurst < timeSlice then decrease by the time left, mark as completed,
-                    //compute completion, turnaround and waiting times and increment the total for them
-                    //increment the countCompleted to track if all the processes from the Q are finished
-                    else{
+                    else {
                         currentTime += queue[index].remainingBurst;
                         queue[index].remainingBurst = 0;
 
                         queue[index].completionTime = currentTime;
-                        queue[index].turnaroundTime = queue[index].completionTime - queue[index].arrivalTime;
+                        queue[index].turnaroundTime = currentTime - queue[index].arrivalTime;
                         queue[index].waitingTime = queue[index].turnaroundTime - queue[index].burstTime;
 
                         queue[index].status = "COMPLETED";
@@ -213,21 +224,127 @@ class PCBQueue{
                         totalResponse += queue[index].responseTime;
 
                         countCompleted++;
-                        }
                     }
                 }
-                avgTurnaround = totalTurnaround/count;
-                avgWaiting = totalWaiting/count;
-                avgResponse = totalResponse/count;
             }
-        };
 
+            avgTurnaround = totalTurnaround / count;
+            avgWaiting = totalWaiting / count;
+            avgResponse = totalResponse / count;
+        }
 
+        void computeTimesSJF() {
+            int currentTime = 0;
+            int countCompleted = 0;
+
+            totalTurnaround = totalWaiting = totalResponse = 0;
+
+            // initialize
+            for (int i = 0; i < count; i++) {
+                int index = (first + i) % MAX_PCB_SIZE;
+                queue[index].remainingBurst = queue[index].burstTime;
+                queue[index].responseTime = -1;
+                queue[index].status = "READY";
+            }
+
+            while (countCompleted < count) {
+
+                int bestIndex = -1;
+                int bestBurst = 999999;        // VERY LARGE NUMBER
+
+                // find the shortest available job
+                for (int i = 0; i < count; i++) {
+                    int index = (first + i) % MAX_PCB_SIZE;
+
+                    if (queue[index].status == "COMPLETED")
+                        continue;
+
+                    if (queue[index].arrivalTime <= currentTime &&
+                        queue[index].burstTime < bestBurst)
+                    {
+                        bestBurst = queue[index].burstTime;
+                        bestIndex = index;
+                    }
+                }
+
+                // If no job has arrived yet → jump currentTime
+                if (bestIndex == -1) {
+                    int nextArrival = 999999;   // VERY LARGE NUMBER
+
+                    for (int i = 0; i < count; i++) {
+                        int index = (first + i) % MAX_PCB_SIZE;
+
+                        if (queue[index].status != "COMPLETED" &&
+                            queue[index].arrivalTime > currentTime)
+                        {
+                            // manually compare instead of min()
+                            if (queue[index].arrivalTime < nextArrival)
+                                nextArrival = queue[index].arrivalTime;
+                        }
+                    }
+
+                    currentTime = nextArrival;
+                    continue;
+                }
+
+                // set response time on first run
+                if (queue[bestIndex].responseTime == -1)
+                    queue[bestIndex].responseTime = currentTime - queue[bestIndex].arrivalTime;
+
+                // run to completion
+                currentTime += queue[bestIndex].burstTime;
+
+                queue[bestIndex].completionTime = currentTime;
+                queue[bestIndex].turnaroundTime = currentTime - queue[bestIndex].arrivalTime;
+                queue[bestIndex].waitingTime = queue[bestIndex].turnaroundTime - queue[bestIndex].burstTime;
+
+                queue[bestIndex].status = "COMPLETED";
+
+                totalTurnaround += queue[bestIndex].turnaroundTime;
+                totalWaiting += queue[bestIndex].waitingTime;
+                totalResponse += queue[bestIndex].responseTime;
+
+                countCompleted++;
+            }
+
+            avgTurnaround = totalTurnaround / count;
+            avgWaiting = totalWaiting / count;
+            avgResponse = totalResponse / count;
+        }
+    };
+
+bool loadQueueFromFile(const string &filename, PCBQueue &q) {
+    ifstream infile(filename.c_str());
+    if (!infile) {
+        cout << "Error opening file: " << filename << endl;
+        return false;
+    }
+
+    q.clearQueue();
+
+    PCB filePCB;
+    // try to read 5 or 6 fields: if LIMIT is present it's read, otherwise default limit=0
+    while (infile >> filePCB.pid >> filePCB.status >> filePCB.priority >> filePCB.burstTime >> filePCB.arrivalTime) {
+        // attempt to read limit if present (peek)
+        // we'll set default limit = 0 so it doesn't break previous code
+        filePCB.limit = 0;
+        filePCB.base = -1;
+        filePCB.completionTime = 0;
+        filePCB.turnaroundTime = 0;
+        filePCB.waitingTime = 0;
+        filePCB.responseTime = -1;
+        filePCB.remainingBurst = 0;
+        filePCB.status = filePCB.status; // keep as read (NEW or READY)
+        q.add(filePCB);
+    }
+    infile.close();
+    return true;
+}
 
 int main(){
     //declaration
     PCBQueue scheduledQueue;
-    ifstream infile("data_rr.txt"); //file should be in the same folder as .cpp file or enter the full path
+    ifstream infile("data_rr_sjf.txt"); //file should be in the same folder as .cpp file or enter the full path
 
     //if file not found == cout error
     if(!infile){
@@ -245,7 +362,7 @@ int main(){
     infile.close();
 
     // scheduledQueue.computeTimesFifo();
-    scheduledQueue.computeTimesRR();
+    scheduledQueue.computeTimesSJF();
     scheduledQueue.saveResults();
 
     // scheduledQueue.clearQueue();

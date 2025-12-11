@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/stark/Documents/vscode/git_repo/Practices-1/cpp/3320/hw1/pcbqueue_hw'
+relocations:     []
+...

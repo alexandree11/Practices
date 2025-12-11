@@ -1,0 +1,14 @@
+PID:   | Burst   | Arrival  | Completion  | Turnaround  | Waiting  | Response  
+12345  | 5       | 0        | 5           | 5           | 0        | 0         
+12346  | 6       | 1        | 11          | 10          | 4        | 4         
+12347  | 8       | 2        | 19          | 17          | 9        | 9         
+12348  | 10      | 4        | 29          | 25          | 15       | 15        
+12349  | 14      | 16       | 54          | 38          | 24       | 24        
+12350  | 7       | 20       | 40          | 20          | 13       | 13        
+12351  | 4       | 22       | 33          | 11          | 7        | 7         
+12352  | 6       | 46       | 60          | 14          | 8        | 8         
+12353  | 8       | 55       | 68          | 13          | 5        | 5         
+12354  | 9       | 60       | 77          | 17          | 8        | 8         
+Average turnaround time: 17
+Average waiting time: 9.3
+Average response time: 9.3

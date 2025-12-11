@@ -88,6 +88,17 @@ class PCBQueue{
             count--; // decrement to compare with isEmpty and isFull
         }
 
+        void removeFirst(){
+            if(!isEmpty()){
+                first = (first + 1)%MAX_PCB_SIZE;
+                count--;
+            }
+        }
+
+        PCB& getFirst(){
+            return queue[first];
+        }
+
         PCB& getByIndex(int i){
             int index = (first + i) % MAX_PCB_SIZE; // circular indexing
             return queue[index];
@@ -335,7 +346,7 @@ class PCBQueue{
             }
             return false;
         }
-        
+
     void deallocateMemory(PCB &q, int memory[]){
         if(q.base == -1)
             return;
@@ -347,7 +358,7 @@ class PCBQueue{
 
     void printMemory(){
         cout << "Memory:" << endl;
-        for(int i=0; i<MEMORY_SIZE; i++){
+        for(int i=0; i< MAX_MEMORY_SIZE; i++){
             if(memory[i]==-1) 
                 cout << ".";
             else
@@ -415,7 +426,7 @@ void simulateFIFO(PCBQueue &scheduledQ)
         for (int i = 0; i < memoryWaitingQ.getCount();)
         {
             PCB &p = memoryWaitingQ.getByIndex(i);
-            if (allocateMemory(p))
+            if (allocateMemoryForProcess(p))
             {
                 p.status = "READY";
                 p.arrivalTime = clock; // ready arrival

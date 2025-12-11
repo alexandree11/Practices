@@ -327,7 +327,7 @@ class PCBQueue{
             avgResponse = totalResponse / count;
         }
 
-        bool allocateMemoryForProcess(PCB &q, int memory[], int memorySize) {
+        bool allocateMemory(PCB &q, int memory[], int memorySize) {
             for(int start = 0; start <= memorySize - q.limit; start++){
                 bool canAllocate = true;
                 for(int i = 0; i < q.limit; i++){
@@ -426,7 +426,7 @@ void simulateFIFO(PCBQueue &scheduledQ)
         for (int i = 0; i < memoryWaitingQ.getCount();)
         {
             PCB &p = memoryWaitingQ.getByIndex(i);
-            if (allocateMemoryForProcess(p))
+            if (scheduledQ.allocateMemory(p))
             {
                 p.status = "READY";
                 p.arrivalTime = clock; // ready arrival
@@ -458,7 +458,7 @@ void simulateFIFO(PCBQueue &scheduledQ)
             {
                 running.status = "TERMINATED";
                 running.completionTime = clock + 1;
-                deallocateMemory(running);
+                scheduledQ.deallocateMemory(running);
                 cpuIdle = true;
                 cout << "Clock " << clock << ": PID " << running.pid << " terminated" << endl;
             }
@@ -474,7 +474,7 @@ void simulateFIFO(PCBQueue &scheduledQ)
 
 int main(){
     PCBQueue scheduledQ;
-    initMemory();
+    scheduledQ.initMemory();
 
     string filename = "data_hw3.txt"; // input file
 

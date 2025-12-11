@@ -426,7 +426,7 @@ void simulateFIFO(PCBQueue &scheduledQ)
         for (int i = 0; i < memoryWaitingQ.getCount();)
         {
             PCB &p = memoryWaitingQ.getByIndex(i);
-            if (scheduledQ.allocateMemory(p))
+            if (scheduledQ.allocateMemory(p, memory, MAX_MEMORY_SIZE))  // FIXED
             {
                 p.status = "READY";
                 p.arrivalTime = clock; // ready arrival
@@ -458,14 +458,14 @@ void simulateFIFO(PCBQueue &scheduledQ)
             {
                 running.status = "TERMINATED";
                 running.completionTime = clock + 1;
-                scheduledQ.deallocateMemory(running);
+                scheduledQ.deallocateMemory(running, memory);
                 cpuIdle = true;
                 cout << "Clock " << clock << ": PID " << running.pid << " terminated" << endl;
             }
         }
 
         // 4. Print memory and ready queue at each tick
-        printMemory();
+        scheduledQ.printMemory();
         readyQ.printQueue();
 
         clock++;
@@ -474,13 +474,16 @@ void simulateFIFO(PCBQueue &scheduledQ)
 
 int main(){
     PCBQueue scheduledQ;
-    scheduledQ.initMemory();
+    
+    initMemory();
 
-    string filename = "data_hw3.txt"; // input file
+    string filename = "data.txt"; // input file
 
-    if(!loadQueueFromFile(filename, scheduledQ)) return 1;
+    if(!loadQueueFromFile(filename, scheduledQ)) 
+        return 1;
 
     simulateFIFO(scheduledQ);
+    scheduledQ.printMemory();
 
     return 0;
 }

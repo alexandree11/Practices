@@ -84,8 +84,13 @@ class PCBQueue{
             count--; // decrement to compare with isEmpty and isFull
         }
 
+        PCB& getByIndex(int i){
+            int index = (first + i) % MAX_PCB_SIZE; // circular indexing
+            return queue[index];
+        }
+
         void printQueue(){
-            if (isEmpty()){
+            if(isEmpty()){
                 cout << "Queue is empty" << endl;
                 return;
             }
@@ -109,12 +114,7 @@ class PCBQueue{
         }
 
         // func to print the scheduler info for fifo
-        void saveResults(){
-            if (isEmpty()){
-                cout << "No ready processes in" << endl;
-                return;
-            }
-
+        void saveResultsTo(const string &filename) {
             ofstream outfile("table_sjf.txt"); // create a table_fifo.txt file to save the results
 
             if(!outfile)
@@ -171,7 +171,7 @@ class PCBQueue{
             }
             avgTurnaround = totalTurnaround/count;
             avgWaiting = totalWaiting/count;
-            avgResponse = totalResponse/count;
+            avgResponse = avgWaiting;
         }
 
         void computeTimesRR() {

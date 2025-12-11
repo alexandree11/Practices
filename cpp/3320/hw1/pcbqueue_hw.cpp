@@ -343,31 +343,27 @@ bool loadQueueFromFile(const string &filename, PCBQueue &q) {
 
 int main(){
     //declaration
-    PCBQueue scheduledQueue;
-    ifstream infile("data_rr_sjf.txt"); //file should be in the same folder as .cpp file or enter the full path
+    PCBQueue scheduledQ;
 
-    //if file not found == cout error
-    if(!infile){
-        cout << "Error opening file" << endl;
-        return 1;
-    }
+    string filename1 = "data_rr_sjf.txt";
 
-    PCB filePCB;
-    //loop to read from a file and assign values to filePCB(pid, status, priority)
-    //then add the PCB object to the queue
-    //repeat while end of the file is not reached and print the queue at the end of the loop
-    while(infile >> filePCB.pid >> filePCB.status >> filePCB.priority >> filePCB.burstTime >> filePCB.arrivalTime){
-        scheduledQueue.add(filePCB);
-    }
-    infile.close();
+    if(!loadQueueFromFile(filename1, scheduledQ))
+        return 1; // error loading file
+    scheduledQ.computeTimesFifo();
+    scheduledQ.saveResultsFIFO();
+    cout << "Saved FIFO" << endl;
 
-    // scheduledQueue.computeTimesFifo();
-    scheduledQueue.computeTimesSJF();
-    scheduledQueue.saveResults();
+    if(!loadQueueFromFile(filename1, scheduledQ))
+        return 1; // error loading file
+    scheduledQ.computeTimesRR();
+    scheduledQ.saveResultsRR();
+    cout << "Saved RR" << endl;
 
-    // scheduledQueue.clearQueue();
-
-    // scheduledQueue.printFifo();
+    if(!loadQueueFromFile(filename1, scheduledQ))
+        return 1; // error loading file
+    scheduledQ.computeTimesSJF();
+    scheduledQ.saveResultsSJF();
+    cout << "Saved SJF" << endl;
 
     return 0;
 }

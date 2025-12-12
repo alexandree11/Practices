@@ -360,10 +360,11 @@ class PCBQueue{
         cout << "Memory:" << endl;
         for(int i=0; i< MAX_MEMORY_SIZE; i++){
             if(memory[i]==-1) 
-                cout << ".";
+                cout << left << setw(6) << ".";
             else
-                cout << memory[i]%10;
-            if((i+1)%16==0) cout << endl;
+                cout << left << setw(6) << memory[i]%10;
+            if((i+1)%16==0) 
+                cout << endl;
         }
     }
 };
@@ -404,72 +405,66 @@ void initMemory()
 
 void simulateFIFO(PCBQueue &scheduledQ)
 {
-    PCBQueue memoryWaitingQ, readyQ;
     int clock = 0;
+    PCBQueue memoryWaitingQ, readyQ;
     PCB running;
     bool cpuIdle = true;
 
-    while (scheduledQ.getCount() > 0 || !memoryWaitingQ.isEmpty() || !readyQ.isEmpty() || !cpuIdle)
-    {
-        // 1. Move newly arrived processes → memoryWaitingQ
-        for (int i = 0; i < scheduledQ.getCount(); i++)
-        {
+    // Reset remainingBurst for all scheduled processes
+    for (int i = 0; i < scheduledQ.getCount(); i++) {
+        PCB &p = scheduledQ.getByIndex(i);
+        p.remainingBurst = p.burstTime;
+        p.status = "NEW";
+        p.base = -1;
+    }
+
+    while (scheduledQ.getCount() > 0 || !memoryWaitingQ.isEmpty() || !readyQ.isEmpty() || !cpuIdle) {
+
+        // 1. Move newly arrived processes → Memory Wait Queue
+        for (int i = 0; i < scheduledQ.getCount(); i++) {
             PCB &p = scheduledQ.getByIndex(i);
-            if (p.arrivalTime == clock)
-            {
+            if (p.arrivalTime == clock && p.status == "NEW") {
                 memoryWaitingQ.add(p);
                 p.status = "NEW";
             }
         }
 
-        // 2. Allocate memory for memoryWaitingQ
-        for (int i = 0; i < memoryWaitingQ.getCount();)
-        {
+        // 2. Allocate memory for Memory Wait Queue
+        for (int i = 0; i < memoryWaitingQ.getCount(); ) {
             PCB &p = memoryWaitingQ.getByIndex(i);
-            if (scheduledQ.allocateMemory(p, memory, MAX_MEMORY_SIZE))  // FIXED
-            {
+            if (scheduledQ.allocateMemory(p, memory, MAX_MEMORY_SIZE)) {
                 p.status = "READY";
-                p.arrivalTime = clock; // ready arrival
+                p.remainingBurst = p.burstTime;
                 readyQ.add(p);
                 memoryWaitingQ.removeFirst();
-            }
-            else
-            {
+            } else {
                 i++;
-            } // cannot allocate, check next
+            }
         }
 
-        // 3. CPU scheduling FIFO
-        if (cpuIdle && !readyQ.isEmpty())
-        {
+        // 3. CPU execution
+        if (cpuIdle && !readyQ.isEmpty()) {
             running = readyQ.getFirst();
             readyQ.removeFirst();
             running.status = "RUNNING";
             cpuIdle = false;
-            if (running.responseTime == -1)
-                running.responseTime = 0;
-            cout << "Clock " << clock << ": PID " << running.pid << " started running" << endl;
         }
 
-        if (!cpuIdle)
-        {
+        if (!cpuIdle) {
             running.remainingBurst--;
-            if (running.remainingBurst == 0)
-            {
+            if (running.remainingBurst == 0) {
                 running.status = "TERMINATED";
-                running.completionTime = clock + 1;
                 scheduledQ.deallocateMemory(running, memory);
                 cpuIdle = true;
-                cout << "Clock " << clock << ": PID " << running.pid << " terminated" << endl;
             }
         }
 
-        // 4. Print memory and ready queue at each tick
-        scheduledQ.printMemory();
-        readyQ.printQueue();
+        // 4. Print memory table
 
         clock++;
     }
+    scheduledQ.printMemory();
+    cout << "Simulation complete at clock " << clock << endl;
 }
 
 int main(){
@@ -483,7 +478,6 @@ int main(){
         return 1;
 
     simulateFIFO(scheduledQ);
-    scheduledQ.printMemory();
 
     return 0;
 }

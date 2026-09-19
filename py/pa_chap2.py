@@ -158,6 +158,166 @@ def show_menu():
 15. Turtle Graphics Drawings
 """)
 
+def draw_rombs():
+    speed(0)
+    penup()
+    goto(0,0)
+    pendown()
+    goto(40,40)
+    goto(120,-40)
+    goto(160,0)
+    goto(120,40)
+    goto(40,-40)
+    goto(0,0)
+
+def draw_triangles():
+    penup()
+    goto(240,-40)
+    pendown()
+    goto(280,40)
+    goto(320,-40)
+    goto(240,-40)
+    goto(280,0)
+    goto(320,-40)
+
+def draw_cube():
+    penup()
+    goto(20,-80)
+    pendown()
+
+    #first square
+    goto(50,-80)
+    goto(50,-110)
+    goto(20,-110)
+    goto(20,-80)
+
+    #second square
+    penup()
+    goto(50,-110)
+    pendown()
+    goto(80,-110)
+    goto(80,-140)
+    goto(50,-140)
+    goto(50,-110)
+
+    #connecting squares
+    penup()
+    goto(20,-80)
+    pendown()
+    goto(80,-140)
+    penup()
+    goto(50,-80)
+    pendown()
+    goto(80,-110)
+    penup()
+    goto(20,-110)
+    pendown()
+    goto(50,-140)
+
+def draw_circles():
+    penup()
+    goto(190, -120)
+    pendown()
+    circle(20)
+
+    penup()
+    goto(235,-120)
+    pendown()
+    circle(20)
+
+    penup()
+    goto(280,-120)
+    pendown()
+    circle(20)
+
+    penup()
+    goto(212,-140)
+    pendown()
+    circle(20)
+
+    penup()
+    goto(257,-140)
+    pendown()
+    circle(20)
+
+def draw_compass():
+    #North to south
+    penup()
+    goto(50,-175)
+    write('North')
+    goto(60,-180)
+    pendown()
+    goto(60,-260)
+    penup()
+    goto(50,-270)
+    write('South')
+
+    #West to east
+    penup()
+    goto(5,-220)
+    write('West')
+    goto(20,-220)
+    pendown()
+    goto(100,-220)
+    penup()
+    goto(105,-220)
+    write('East')
+
+    #Circle in the middle
+    penup()
+    goto(60,-230)
+    pendown()
+    circle(10)
+    
+def draw_square():
+    #left/right/diagonal lines and dots
+    penup()
+    goto(190,-180)
+    pendown()
+    dot(5, "black")
+    goto(190,-260)
+    dot(5, "black")
+    goto(230,-220)
+    dot(5, "black")
+    goto(270,-180)
+    dot(5, "black")
+    goto(270,-260)
+    dot(5, "black")
+    goto(190,-180)
+
+    #top dashes
+    goto(200,-180)
+    penup()
+    goto(205,-180)
+    pendown()
+    goto(225,-180)
+    penup()
+    goto(235,-180)
+    pendown()
+    goto(255,-180)
+    penup()
+    goto(260,-180)
+    pendown()
+    goto(270,-180)
+
+    #bottom dashes
+    penup()
+    goto(190,-260)
+    pendown()
+    goto(200,-260)
+    penup()
+    goto(205,-260)
+    pendown()
+    goto(225,-260)
+    penup()
+    goto(235,-260)
+    pendown()
+    goto(255,-260)
+    penup()
+    goto(260,-260)
+    pendown()
+    goto(270,-260)
+
 show_menu()
 choices = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 while(True):
@@ -200,13 +360,21 @@ while(True):
         row_length = float(input("Enter the length of the row(in feet): "))
         space_used = float(input("Enter the amount of space used by an end-post assembly(in feet): "))
         space_between = float(input("Enter the amount of space between vines(in feet): "))
+        planting_grapevines(row_length, space_used, space_between)
     elif user_choice == 14:
         dep_amount = float(input("Enter the amount of principal originally deposited: ")) 
         int_rate = (float(input("Enter the annual interest rate paid by the account(in %): ")))/100
         compound_per_year = int(input("Enter the number of times per year that the interest is compounded: "))
         num_years = int(input("Enter the number of years the account will be left to earn interest: "))
-    # elif user_choice == 15:
-        
+        compound_interest(dep_amount, int_rate, compound_per_year, num_years)
+    elif user_choice == 15:
+        draw_rombs()
+        draw_triangles()
+        draw_cube()
+        draw_circles()
+        draw_compass()
+        draw_square()
+        exitonclick()
     elif user_choice == 0:
         show_menu()
     elif user_choice == 999:

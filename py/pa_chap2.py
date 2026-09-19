@@ -89,9 +89,9 @@ def ingridient_adj(cookies_amount):
         "butter": 1,
         "flour": 2.75
     }
-    print(f"For {cookies_amount} cookies you need {(recipe.get("sugar")/48*cookies_amount):.2f} cup(s) of sugar",
-          f"{(recipe.get("butter")/48*cookies_amount):.2f} cup(s) of butter",
-          f"{(recipe.get("flour")/48*cookies_amount):.2f} cup(s) of flour")
+    print(f"For {cookies_amount} cookies you need {(recipe.get('sugar')/48*cookies_amount):.2f} cup(s) of sugar",
+          f"{(recipe.get('butter')/48*cookies_amount):.2f} cup(s) of butter",
+          f"{(recipe.get('flour')/48*cookies_amount):.2f} cup(s) of flour")
 
 def percentages_in_zoo(lions, tigers):
     total = lions + tigers

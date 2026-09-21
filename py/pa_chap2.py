@@ -16,11 +16,11 @@ def personal_info():
 
 def sales_prediction(total_sales):
     annual_profit = total_sales*0.23
-    print(f"The annual profit of the company is {annual_profit}\n")
+    print(f"The annual profit of the company is {(annual_profit):.2f}\n")
 
 def land_calc(sq_feet):
     acre = 43560
-    print(f"{sq_feet/acre}")
+    print(f"{sq_feet} is {(sq_feet/acre):.2f} acres")
 
 def total_purchase():
     items_list = []
@@ -42,7 +42,7 @@ def total_purchase():
             for i in range(len(items_list)):
                 total += items_list[i]
             total = total + (total*taxes)
-            print(f"The total is {total}")
+            print(f"The total is {(total):.2f}")
             break
         else:
             print("Wrong input. Choose 1 or 0")
@@ -66,7 +66,7 @@ The total amount of purchase plus sales tax: {(total):.2f}""")
 
 def miles_per_gallon(miles_driven, gal_used):
     mpg = miles_driven/gal_used
-    print(f"MPG is {mpg}")
+    print(f"MPG is {(mpg):.2f}")
 
 def restaurant_check(subtotal):
     tip_percent = 0.18
@@ -75,9 +75,9 @@ def restaurant_check(subtotal):
     tax_amount = subtotal*sales_tax_percent
     total = subtotal + tip_amount + tax_amount
     print(f"""Subtotal: {subtotal}
-Tip amount: {tip_amount}
-Tax amount: {tax_amount}
-Total: {total}""")
+Tip amount: {(tip_amount):.2f}
+Tax amount: {(tax_amount):.2f}
+Total: {(total):.2f}""")
 
 def cels_to_fahr(temp_in_c):
     temp_in_f = (9/5*temp_in_c)+32
@@ -132,13 +132,21 @@ def stock_transaction():
 
 def planting_grapevines(row_length, space_used, space_between):
     vines_per_row = (row_length - 2*space_used)/space_between
-    print(f"{vines_per_row} will fit in the row")
+    print(f"{(vines_per_row):.1f} will fit in the row")
 
 def compound_interest(dep_amount, int_rate, compound_per_year, num_years):
     final_amount = dep_amount*((1 + int_rate/compound_per_year)**(compound_per_year*num_years))
-    print(f"The amount of money that will be in the account after {num_years} years is ${final_amount}")
+    print(f"The amount of money that will be in the account after {num_years} years is ${(final_amount):.2f}")
 
-""" def program15 """
+def draw_figures():
+        draw_rombs()
+        draw_triangles()
+        draw_cube()
+        draw_circles()
+        draw_compass()
+        draw_square()
+        exitonclick()
+
 
 def show_menu():
     print(f"""1. Personal Info
@@ -368,13 +376,7 @@ while(True):
         num_years = int(input("Enter the number of years the account will be left to earn interest: "))
         compound_interest(dep_amount, int_rate, compound_per_year, num_years)
     elif user_choice == 15:
-        draw_rombs()
-        draw_triangles()
-        draw_cube()
-        draw_circles()
-        draw_compass()
-        draw_square()
-        exitonclick()
+        draw_figures()
     elif user_choice == 0:
         show_menu()
     elif user_choice == 999:

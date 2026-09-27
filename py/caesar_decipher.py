@@ -4,7 +4,7 @@ hex_data = "6975783d7c68797469726f3d7b726f6a7c6f7978793d6975783d6a757271783d707c
 ciphertext = bytes.fromhex(hex_data)
 
 # do a loop 256 times to find the key
-# each iteration = shifting bites
+# each iteration = shifting bytes
 for key in range(256):
     # xor every byte in ciphertext with the current key
     decrypted_bytes = bytes([b ^ key for b in ciphertext])

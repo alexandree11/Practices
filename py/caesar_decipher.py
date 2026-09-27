@@ -13,7 +13,7 @@ for key in range(256):
     plaintext = decrypted_bytes.decode('ascii')
 
     # if every char in plaintext is a lowercase alphabet letter
-    # print the text and the key
+    # print the text and the key and stop the loop
     if all(c in 'abcdefghijklmnopqrstuvwxyz ' for c in plaintext):
         print(f"Q1 (Plaintext): {plaintext}")
         print(f"Q2 (Key Byte) : {key}")

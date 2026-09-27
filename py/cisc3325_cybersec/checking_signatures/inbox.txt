@@ -1,0 +1,24 @@
+1 277 send the purchase order to the payroll office by friday
+2 179 pay three thousand dollars to the contractor on monday
+3 280 pay two hundred dollars to legal this week
+4 308 send the badge request to the vendor by the first
+5 225 pay five thousand dollars to the night shift after the audit
+6 250 freeze the payroll file by friday
+7 150 renew the contract this week
+8 124 send the audit report to the help desk next month
+9 124 pay two hundred dollars to the landlord this week
+10 263 sign the contract this week
+11 308 sign the offer letter today
+12 200 pay seven hundred dollars to the new hire today
+13 162 sign the contract today
+14 217 sign the contract by the first
+15 241 cancel the purchase order by friday
+16 210 approve the invoice tonight
+17 162 restore the backup tapes tonight
+18 205 send the audit report to the print shop tonight
+19 64 send the invoice to the landlord before noon
+20 158 pay four hundred dollars to the vendor on monday
+21 97 cancel the purchase order before noon
+22 158 archive the server logs today
+23 235 cancel the purchase order tonight
+24 308 sign the contract on monday
